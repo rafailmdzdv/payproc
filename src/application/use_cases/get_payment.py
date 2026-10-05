@@ -36,7 +36,7 @@ class GetPaymentUseCase:
     async def execute(self, payment_id: uuid.UUID) -> PaymentDTO | None:
         """Fetch payment details by ID."""
         async with self._uow as transaction_uow:
-            payment_entity = await transaction_uow.payments.get_by_id(
+            payment_entity = await transaction_uow.payments().get_by_id(
                 payment_id,
             )
             if payment_entity is None:

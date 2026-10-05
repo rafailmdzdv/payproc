@@ -28,11 +28,11 @@ async def test_create_new_payment_success(fake_uow: FakeUnitOfWork) -> None:
     assert payment_dto.status == PaymentStatus.PENDING
     assert fake_uow.committed is True
 
-    saved_payment = await fake_uow.payments.get_by_id(payment_dto.id)
+    saved_payment = await fake_uow.payments().get_by_id(payment_dto.id)
     assert saved_payment is not None
     assert saved_payment.idempotency_key == 'idemp_unique_001'
 
-    pending_messages = await fake_uow.outbox.fetch_pending(10)
+    pending_messages = await fake_uow.outbox().fetch_pending(10)
     assert len(pending_messages) == 1
     assert pending_messages[0].event_type == 'payment.created'
     assert pending_messages[0].payload['payment_id'] == str(payment_dto.id)
@@ -57,5 +57,5 @@ async def test_create_payment_idempotent_existing(fake_uow: FakeUnitOfWork) -> N
     assert second_payment.id == first_payment.id
     assert second_payment.status == PaymentStatus.PENDING
 
-    pending_messages = await fake_uow.outbox.fetch_pending(10)
+    pending_messages = await fake_uow.outbox().fetch_pending(10)
     assert len(pending_messages) == 1

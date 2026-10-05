@@ -13,11 +13,9 @@ from application.interfaces.repositories import (
 class UnitOfWork(Protocol):
     """Transactional boundary coordinating repositories."""
 
-    @property
     def payments(self) -> PaymentRepository:
         """Payment repository instance."""
 
-    @property
     def outbox(self) -> OutboxRepository:
         """Outbox repository instance."""
 

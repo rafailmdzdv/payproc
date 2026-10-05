@@ -71,7 +71,7 @@ class CreatePaymentUseCase:
     ) -> tuple[PaymentDTO, bool]:
         """Execute transactional payment registration."""
         async with self._uow as transaction_uow:
-            existing_payment = await transaction_uow.payments.get_by_idempotency_key(
+            existing_payment = await transaction_uow.payments().get_by_idempotency_key(
                 payment_input.idempotency_key,
             )
             if existing_payment is not None:
@@ -89,8 +89,8 @@ class CreatePaymentUseCase:
                 webhook_url=payment_input.webhook_url,
                 created_at=now,
             )
-            await transaction_uow.payments.add(payment)
-            await transaction_uow.outbox.add(
+            await transaction_uow.payments().add(payment)
+            await transaction_uow.outbox().add(
                 _build_outbox_message(payment, now),
             )
             await transaction_uow.commit()

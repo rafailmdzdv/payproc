@@ -109,12 +109,10 @@ class FakeUnitOfWork(uow.UnitOfWork):
         self.committed = False
         self.rolled_back = False
 
-    @property
     @override
     def payments(self) -> repositories.PaymentRepository:
         return self._payments
 
-    @property
     @override
     def outbox(self) -> repositories.OutboxRepository:
         return self._outbox

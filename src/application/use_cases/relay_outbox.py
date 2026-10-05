@@ -30,7 +30,7 @@ class RelayOutboxUseCase:
     async def execute(self, batch_size: int) -> int:
         """Process batch of unpublished messages and dispatch them."""
         async with self._uow as transaction_uow:
-            pending_messages = await transaction_uow.outbox.fetch_pending(
+            pending_messages = await transaction_uow.outbox().fetch_pending(
                 batch_size,
             )
             if not pending_messages:
@@ -66,10 +66,10 @@ class RelayOutboxUseCase:
                 str(message.id),
                 str(pub_error),
             )
-            await uow.outbox.increment_retry(message.id, str(pub_error))
+            await uow.outbox().increment_retry(message.id, str(pub_error))
         else:
             now = datetime.now(UTC)
-            await uow.outbox.mark_published(message.id, now)
+            await uow.outbox().mark_published(message.id, now)
             logger.info(
                 'Outbox message %s marked as published',
                 str(message.id),

@@ -49,7 +49,7 @@ class ProcessPaymentUseCase:
     async def execute(self, payment_id: uuid.UUID) -> None:
         """Execute payment gateway processing and webhook notification."""
         async with self._uow as transaction_uow:
-            payment = await transaction_uow.payments.get_by_id(payment_id)
+            payment = await transaction_uow.payments().get_by_id(payment_id)
             if payment is None:
                 raise PaymentNotFoundError(payment_id)
 
@@ -83,6 +83,6 @@ class ProcessPaymentUseCase:
             payment.currency,
         )
         now = datetime.now(UTC)
-        await uow.payments.update_status(payment.id, outcome, now)
+        await uow.payments().update_status(payment.id, outcome, now)
         await uow.commit()
         return outcome, now
