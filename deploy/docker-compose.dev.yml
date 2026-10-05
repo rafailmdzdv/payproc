@@ -1,0 +1,70 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: payproc_postgres_dev
+    restart: unless-stopped
+    env_file: ../.env
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d payproc"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: payproc_rabbitmq_dev
+    restart: unless-stopped
+    env_file: ../.env
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_dev_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q check_running"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: payproc_api_dev
+    restart: unless-stopped
+    command: >
+      sh -c "uv run alembic upgrade head &&
+             uv run uvicorn server.api.app:app --host 0.0.0.0 --port 8000 --reload"
+    env_file: ../.env
+    volumes:
+      - ../src:/app/src
+      - ../alembic:/app/alembic
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  consumer:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: payproc_consumer_dev
+    restart: unless-stopped
+    command: uv run faststream run server.consumer.worker:app --reload
+    env_file: ../.env
+    volumes:
+      - ../src:/app/src
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+volumes:
+  postgres_dev_data:
+  rabbitmq_dev_data:

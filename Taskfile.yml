@@ -1,0 +1,32 @@
+version: 3
+
+tasks:
+  compose-dev-run:
+    cmds:
+      - docker compose -f deploy/docker-compose.dev.yml up -d
+
+  compose-dev-stop:
+    cmds:
+      - docker compose -f deploy/docker-compose.dev.yml down
+
+  tests:
+    cmds:
+      - uv run pytest tests -vv
+
+  migrate:
+    cmds:
+      - uv run alembic upgrade head
+
+  fmt:
+    cmds:
+      - uv run ruff format
+
+  lint:
+    cmds:
+      - uv run ruff check
+      - uv run flake8 src
+      - uv run mypy src
+
+  type-check:
+    cmds:
+      - uv run mypy src
