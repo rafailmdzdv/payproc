@@ -23,10 +23,10 @@ jobs:
           python-version: "3.13"
 
       - name: Set up environment config
-        run: cp config/.env.template config/.env
+        run: cp .env.example .env
 
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --frozen --no-group test
 
       - name: Run ruff check
         run: uv run ruff check
@@ -48,7 +48,7 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
-          - 5433:5432
+          - 5432:5432
         options: >-
           --health-cmd "pg_isready -U payproc -d payproc"
           --health-interval 5s
@@ -65,10 +65,10 @@ jobs:
           python-version: "3.13"
 
       - name: Set up environment config
-        run: cp config/.env.template config/.env
+        run: cp .env.example .env
 
       - name: Install dependencies
-        run: uv sync --frozen
+        run: uv sync --frozen --all-groups
 
       - name: Run tests
         run: uv run pytest tests -vv
