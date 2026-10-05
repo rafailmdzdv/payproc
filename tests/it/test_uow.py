@@ -27,11 +27,11 @@ async def test_uow_commit_persists(it_uow: SqlUnitOfWork) -> None:
     )
 
     async with it_uow as uow:
-        await uow.payments.add(payment)
+        await uow.payments().add(payment)
         await uow.commit()
 
     async with it_uow as uow:
-        retrieved = await uow.payments.get_by_id(payment_id)
+        retrieved = await uow.payments().get_by_id(payment_id)
         assert retrieved is not None
         assert retrieved.id == payment_id
 
@@ -52,11 +52,11 @@ async def test_uow_rollback_on_error(it_uow: SqlUnitOfWork) -> None:
 
     with pytest.raises(RuntimeError):  # noqa: PT012
         async with it_uow as uow:
-            await uow.payments.add(payment)
+            await uow.payments().add(payment)
             raise RuntimeError('Intentional error triggering rollback')
 
     async with it_uow as uow:
-        retrieved = await uow.payments.get_by_id(payment_id)
+        retrieved = await uow.payments().get_by_id(payment_id)
         assert retrieved is None
 
 

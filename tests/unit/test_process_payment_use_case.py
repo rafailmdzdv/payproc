@@ -31,7 +31,7 @@ async def test_process_pending_payment_success(
         webhook_url='https://client.site/hook',
         created_at=datetime.now(UTC),
     )
-    await fake_uow.payments.add(payment)
+    await fake_uow.payments().add(payment)
 
     use_case = ProcessPaymentUseCase(
         uow=fake_uow,
@@ -43,7 +43,7 @@ async def test_process_pending_payment_success(
     assert len(fake_gateway.calls) == 1
     assert fake_gateway.calls[0] == (payment_id, Decimal('300.00'), Currency.EUR)
 
-    updated_payment = await fake_uow.payments.get_by_id(payment_id)
+    updated_payment = await fake_uow.payments().get_by_id(payment_id)
     assert updated_payment is not None
     assert updated_payment.status == PaymentStatus.SUCCEEDED
     assert updated_payment.processed_at is not None
@@ -93,7 +93,7 @@ async def test_process_already_processed_payment(
         created_at=now,
         processed_at=now,
     )
-    await fake_uow.payments.add(payment)
+    await fake_uow.payments().add(payment)
 
     use_case = ProcessPaymentUseCase(
         uow=fake_uow,

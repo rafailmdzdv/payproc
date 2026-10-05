@@ -24,7 +24,7 @@ async def test_get_payment_found(fake_uow: FakeUnitOfWork) -> None:
         webhook_url='https://taxi.com/hook',
         created_at=datetime.now(UTC),
     )
-    await fake_uow.payments.add(payment)
+    await fake_uow.payments().add(payment)
 
     use_case = GetPaymentUseCase(fake_uow)
     dto = await use_case.execute(payment_id)

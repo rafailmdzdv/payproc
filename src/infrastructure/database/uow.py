@@ -31,7 +31,6 @@ class SqlUnitOfWork(UnitOfWork):
         self._payments: PaymentRepository | None = None
         self._outbox: OutboxRepository | None = None
 
-    @property
     @override
     def payments(self) -> PaymentRepository:
         """Access payment repository within active context."""
@@ -39,7 +38,6 @@ class SqlUnitOfWork(UnitOfWork):
             raise RuntimeError('Unit of Work has not been entered')
         return self._payments
 
-    @property
     @override
     def outbox(self) -> OutboxRepository:
         """Access outbox repository within active context."""

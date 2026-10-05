@@ -28,8 +28,8 @@ async def test_relay_outbox_success(
         status=OutboxStatus.PENDING,
         created_at=datetime.now(UTC),
     )
-    await fake_uow.outbox.add(msg1)
-    await fake_uow.outbox.add(msg2)
+    await fake_uow.outbox().add(msg1)
+    await fake_uow.outbox().add(msg2)
 
     use_case = RelayOutboxUseCase(
         uow=fake_uow,
@@ -37,7 +37,7 @@ async def test_relay_outbox_success(
         queue_name='payments.events',
     )
     dispatched_count = await use_case.execute(batch_size=10)
-    pending = await fake_uow.outbox.fetch_pending(10)
+    pending = await fake_uow.outbox().fetch_pending(10)
 
     assert dispatched_count == 2
     assert len(fake_publisher.published) == 2
@@ -70,7 +70,7 @@ async def test_relay_outbox_publish_failure(
         status=OutboxStatus.PENDING,
         created_at=datetime.now(UTC),
     )
-    await fake_uow.outbox.add(msg)
+    await fake_uow.outbox().add(msg)
 
     use_case = RelayOutboxUseCase(
         uow=fake_uow,
